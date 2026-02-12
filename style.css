@@ -1,0 +1,219 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+  -webkit-app-region: no-drag;
+}
+
+#scene {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-style: preserve-3d;
+  transition: transform 0.3s;
+}
+
+/* === Settings === */
+
+/* === Character === */
+#character {
+  position: relative;
+  width: 120px;
+  height: 130px;
+  animation: idle 3s ease-in-out infinite;
+  cursor: grab;
+  z-index: 2;
+  overflow: visible;
+}
+
+#character.typing {
+  animation: idle 3s ease-in-out infinite, typeMove 0.1s ease-in-out;
+}
+
+#char-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 120px;
+  height: 200px;
+}
+
+@keyframes idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes typeMove {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
+  100% { transform: translateY(0); }
+}
+
+/* === Desk === */
+#desk {
+  width: 260px;
+  height: 70px;
+  background: #c49a6c;
+  border-radius: 8px 8px 4px 4px;
+  margin-top: -15px;
+  padding: 8px 10px;
+  border: 2px solid #a07848;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 4px 0 #8a6538;
+}
+
+/* === Mini Keyboard === */
+#mini-keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transform: perspective(200px) rotateX(15deg);
+}
+
+.kb-row {
+  display: flex;
+  gap: 1px;
+  justify-content: center;
+}
+
+.key {
+  min-width: 16px;
+  height: 10px;
+  background: #f5f0e8;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  font-size: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: background 0.05s, transform 0.05s;
+  line-height: 1;
+}
+
+.key.wide { min-width: 24px; }
+.key.space { min-width: 80px; }
+
+.key.active {
+  background: #ff9966;
+  transform: scale(1.2);
+  color: #fff;
+  border-color: #e07030;
+  box-shadow: 0 0 4px rgba(255, 140, 60, 0.6);
+}
+
+/* === Accessories === */
+.hat {
+  width: 50px; height: 20px;
+  background: #e74c3c;
+  border-radius: 4px 4px 0 0;
+  position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+  z-index: 10;
+}
+.hat::after {
+  content: ''; position: absolute; bottom: -4px; left: -8px;
+  width: 66px; height: 6px; background: #c0392b; border-radius: 3px;
+}
+.glasses {
+  position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+  width: 44px; height: 14px; z-index: 5;
+  border: 2px solid #555; border-radius: 50%; background: rgba(200,220,255,0.25);
+}
+.glasses::before {
+  content: ''; position: absolute; top: 4px; left: -6px;
+  width: 6px; height: 2px; background: #555;
+}
+.glasses::after {
+  content: ''; position: absolute; top: 4px; right: -6px;
+  width: 6px; height: 2px; background: #555;
+}
+.bowtie {
+  position: absolute; top: 66px; left: 50%; transform: translateX(-50%); z-index: 4;
+  width: 0; height: 0;
+  border-left: 8px solid #e74c3c; border-right: 8px solid #e74c3c;
+  border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+}
+.bowtie::after {
+  content: ''; position: absolute; top: -3px; left: -3px;
+  width: 6px; height: 6px; background: #c0392b; border-radius: 50%;
+}
+.hidden { display: none !important; }
+
+/* Zzz */
+.zzz {
+  position: absolute; top: -10px; right: -5px; font-size: 14px; font-weight: bold;
+  color: #aac; z-index: 10; animation: zzzFloat 2s ease-in-out infinite;
+}
+.zzz span:nth-child(1) { font-size: 11px; position: relative; top: -6px; left: 2px; }
+.zzz span:nth-child(2) { font-size: 8px; position: relative; top: -10px; left: 4px; }
+@keyframes zzzFloat {
+  0%, 100% { opacity: 0.4; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-8px); }
+}
+
+/* === Action Animations === */
+#character.stretch { animation: stretch 1.5s ease-in-out; }
+@keyframes stretch {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-8px) scaleY(1.08); }
+}
+
+#character.happy { animation: happyBounce 0.4s ease-in-out infinite; }
+@keyframes happyBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* === Keyboard Themes === */
+/* 暗夜 */
+#desk[data-kb-theme="dark"] { background: #3a3a3a; border-color: #222; box-shadow: 0 4px 0 #111; }
+#desk[data-kb-theme="dark"] .key { background: #555; border-color: #444; color: #eee; }
+#desk[data-kb-theme="dark"] .key.active { background: #ff6644; border-color: #cc4422; color: #fff; }
+
+/* 樱花粉 */
+#desk[data-kb-theme="sakura"] { background: #f0b8c8; border-color: #d898a8; box-shadow: 0 4px 0 #c888a0; }
+#desk[data-kb-theme="sakura"] .key { background: #ffe8ee; border-color: #f0c0d0; color: #a06070; }
+#desk[data-kb-theme="sakura"] .key.active { background: #ff7099; border-color: #e05080; color: #fff; }
+
+/* 薄荷绿 */
+#desk[data-kb-theme="mint"] { background: #88c8a8; border-color: #60a880; box-shadow: 0 4px 0 #509870; }
+#desk[data-kb-theme="mint"] .key { background: #d8f5e8; border-color: #a0d8b8; color: #407050; }
+#desk[data-kb-theme="mint"] .key.active { background: #40c080; border-color: #30a060; color: #fff; }
+
+/* 日落橙 */
+#desk[data-kb-theme="sunset"] { background: #e0885a; border-color: #c06838; box-shadow: 0 4px 0 #a05828; }
+#desk[data-kb-theme="sunset"] .key { background: #fff0e0; border-color: #f0c8a0; color: #885030; }
+#desk[data-kb-theme="sunset"] .key.active { background: #ff6030; border-color: #dd4010; color: #fff; }
+
+/* 海洋蓝 */
+#desk[data-kb-theme="ocean"] { background: #5088b8; border-color: #386898; box-shadow: 0 4px 0 #285880; }
+#desk[data-kb-theme="ocean"] .key { background: #d8e8f8; border-color: #a0c0e0; color: #305878; }
+#desk[data-kb-theme="ocean"] .key.active { background: #3090e0; border-color: #2070b0; color: #fff; }
+
+/* 薰衣草 */
+#desk[data-kb-theme="lavender"] { background: #a888c8; border-color: #8868a8; box-shadow: 0 4px 0 #785898; }
+#desk[data-kb-theme="lavender"] .key { background: #f0e8f8; border-color: #d0c0e0; color: #685080; }
+#desk[data-kb-theme="lavender"] .key.active { background: #a060d0; border-color: #8040b0; color: #fff; }
+
+/* 柠檬黄 */
+#desk[data-kb-theme="lemon"] { background: #d8c850; border-color: #b8a830; box-shadow: 0 4px 0 #a09020; }
+#desk[data-kb-theme="lemon"] .key { background: #fffde0; border-color: #e8e0a0; color: #706820; }
+#desk[data-kb-theme="lemon"] .key.active { background: #f0d000; border-color: #c8b000; color: #504000; }
+
+/* 复古棕 */
+#desk[data-kb-theme="retro"] { background: #8b6f4e; border-color: #6b4f2e; box-shadow: 0 4px 0 #5a3e1e; }
+#desk[data-kb-theme="retro"] .key { background: #d8c8a8; border-color: #b0a080; color: #4a3a20; border-radius: 3px; }
+#desk[data-kb-theme="retro"] .key.active { background: #a08050; border-color: #806030; color: #fff; }
+
+/* 赛博朋克 */
+#desk[data-kb-theme="cyber"] { background: #1a1a2e; border-color: #0a0a1e; box-shadow: 0 4px 0 #000; }
+#desk[data-kb-theme="cyber"] .key { background: #16213e; border-color: #0f3460; color: #00ff88; }
+#desk[data-kb-theme="cyber"] .key.active { background: #00ff88; border-color: #00cc66; color: #0a0a1e; box-shadow: 0 0 6px rgba(0,255,136,0.7); }
