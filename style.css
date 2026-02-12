@@ -75,7 +75,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  transform: perspective(200px) rotateX(15deg);
+  transform: perspective(200px) rotateX(-15deg);
 }
 
 .kb-row {
