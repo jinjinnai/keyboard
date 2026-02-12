@@ -84,12 +84,14 @@ pet.onKeyDown((data) => {
   const el = findKeyEl(data.key);
   if (el) {
     el.classList.add('active');
-    // 判断按键在键盘左半还是右半
+    // 计算按键在键盘中的相对X位置(0~1)传给canvas
     const kb = document.getElementById('mini-keyboard');
     const kbRect = kb.getBoundingClientRect();
     const keyRect = el.getBoundingClientRect();
     const keyCenterX = keyRect.left + keyRect.width / 2;
     const kbCenterX = kbRect.left + kbRect.width / 2;
+    const keyX = (keyCenterX - kbRect.left) / kbRect.width;
+    CharacterCanvas.setKeyX(Math.max(0, Math.min(1, keyX)));
     character.classList.remove('typing-left', 'typing-right');
     character.classList.add(keyCenterX < kbCenterX ? 'typing-left' : 'typing-right');
   }

@@ -1,7 +1,7 @@
 // Canvas 角色绘制引擎
 const CharacterCanvas = (() => {
   let canvas, ctx;
-  let state = { typing: false, time: 0, blinkTimer: 0, blinking: false, action: '', earPhase: 0, tailPhase: 0, armPhase: 0 };
+  let state = { typing: false, time: 0, blinkTimer: 0, blinking: false, action: '', earPhase: 0, tailPhase: 0, armPhase: 0, keyX: 0.5 };
   let charType = 'human';
 
   function init(container) {
@@ -17,6 +17,7 @@ const CharacterCanvas = (() => {
   function setCharType(type) { charType = type; }
   function setTyping(v) { state.typing = v; }
   function setAction(a) { state.action = a; }
+  function setKeyX(x) { state.keyX = x; }
 
   function loop() {
     state.time += 0.016;
@@ -51,21 +52,7 @@ const CharacterCanvas = (() => {
   function drawBunny(c, s) {
     const cx = 60, headY = 48, bodyY = 88;
     const earSwing = s.typing ? Math.sin(s.earPhase * 15) * 0.35 : Math.sin(s.earPhase * 2.5) * 0.15;
-    const armDown = s.typing ? 38 + Math.sin(s.armPhase * 20) * 4 : 8;
-
-    // 尾巴
-    const tailScale = 1 + Math.sin(s.tailPhase * 4) * 0.1;
-    c.save();
-    c.translate(82, 100);
-    c.scale(tailScale, tailScale);
-    c.beginPath();
-    c.arc(0, 0, 8, 0, Math.PI * 2);
-    c.fillStyle = '#fff';
-    c.fill();
-    c.strokeStyle = '#f0c0cc';
-    c.lineWidth = 1.5;
-    c.stroke();
-    c.restore();
+    const arms = getTypingArms(s, -0.3, 0.3, cx - 28, cx + 28, bodyY - 8);
 
     // 左耳
     drawBunnyEar(c, cx - 18, headY - 20, -earSwing - 0.12);
@@ -91,8 +78,8 @@ const CharacterCanvas = (() => {
     c.stroke();
 
     // 手臂
-    drawArm(c, cx - 28, bodyY - 8, -0.3, armDown, '#fff', '#f0c0cc');
-    drawArm(c, cx + 28, bodyY - 8, 0.3, armDown, '#fff', '#f0c0cc');
+    drawArm(c, cx - 28, bodyY - 8, arms.leftAngle, arms.leftLen, '#fff', '#f0c0cc');
+    drawArm(c, cx + 28, bodyY - 8, arms.rightAngle, arms.rightLen, '#fff', '#f0c0cc');
 
     // 头
     c.beginPath();
@@ -123,6 +110,39 @@ const CharacterCanvas = (() => {
     c.beginPath();
     c.ellipse(cx + 22, headY + 8, 8, 5, 0, 0, Math.PI * 2);
     c.fill();
+
+    // 尾巴 — 根据动作变化（最后绘制，确保可见）
+    c.save();
+    c.translate(82, 100);
+    if (s.action === 'happy') {
+      const bounce = Math.abs(Math.sin(s.tailPhase * 18)) * 6;
+      c.translate(0, -bounce);
+      c.beginPath();
+      c.arc(0, 0, 9, 0, Math.PI * 2);
+      c.fillStyle = '#fff'; c.fill();
+      c.strokeStyle = '#f0c0cc'; c.lineWidth = 1.5; c.stroke();
+    } else if (s.action === 'sleepy') {
+      c.translate(0, 3);
+      c.beginPath();
+      c.arc(0, 0, 7, 0, Math.PI * 2);
+      c.fillStyle = '#f0e8e8'; c.fill();
+      c.strokeStyle = '#e0c0c8'; c.lineWidth = 1.5; c.stroke();
+    } else if (s.action === 'shake') {
+      const shake = Math.sin(s.tailPhase * 30) * 3;
+      c.translate(shake, 0);
+      c.beginPath();
+      c.arc(0, 0, 9, 0, Math.PI * 2);
+      c.fillStyle = '#fff'; c.fill();
+      c.strokeStyle = '#f0c0cc'; c.lineWidth = 1.5; c.stroke();
+    } else {
+      const tailScale = 1 + Math.sin(s.tailPhase * 4) * 0.1;
+      c.scale(tailScale, tailScale);
+      c.beginPath();
+      c.arc(0, 0, 8, 0, Math.PI * 2);
+      c.fillStyle = '#fff'; c.fill();
+      c.strokeStyle = '#f0c0cc'; c.lineWidth = 1.5; c.stroke();
+    }
+    c.restore();
   }
 
   function drawBunnyEar(c, x, y, angle) {
@@ -149,25 +169,7 @@ const CharacterCanvas = (() => {
   function drawCat(c, s) {
     const cx = 60, headY = 48, bodyY = 88;
     const earSwing = s.typing ? Math.sin(s.earPhase * 16) * 0.3 : Math.sin(s.earPhase * 3.5) * 0.12;
-    const armDown = s.typing ? 38 + Math.sin(s.armPhase * 20) * 4 : 8;
-    const tailSwing = Math.sin(s.tailPhase * 3) * 0.4;
-
-    // 尾巴
-    c.save();
-    c.translate(85, 85);
-    c.rotate(tailSwing - 0.3);
-    c.beginPath();
-    c.moveTo(0, 0);
-    c.quadraticCurveTo(12, 15, 8, 35);
-    c.quadraticCurveTo(6, 42, 0, 40);
-    c.quadraticCurveTo(2, 38, 4, 30);
-    c.quadraticCurveTo(8, 12, -2, 2);
-    c.fillStyle = '#f5c07a';
-    c.fill();
-    c.strokeStyle = '#d9a05c';
-    c.lineWidth = 1.5;
-    c.stroke();
-    c.restore();
+    const arms = getTypingArms(s, -0.3, 0.3, cx - 26, cx + 26, bodyY - 8);
 
     // 左耳三角
     drawCatEar(c, cx - 22, headY - 26, -earSwing - 0.1);
@@ -183,8 +185,8 @@ const CharacterCanvas = (() => {
     c.stroke();
 
     // 手臂
-    drawArm(c, cx - 26, bodyY - 8, -0.3, armDown, '#f5c07a', '#d9a05c');
-    drawArm(c, cx + 26, bodyY - 8, 0.3, armDown, '#f5c07a', '#d9a05c');
+    drawArm(c, cx - 26, bodyY - 8, arms.leftAngle, arms.leftLen, '#f5c07a', '#d9a05c');
+    drawArm(c, cx + 26, bodyY - 8, arms.rightAngle, arms.rightLen, '#f5c07a', '#d9a05c');
 
     // 头
     c.beginPath();
@@ -228,6 +230,55 @@ const CharacterCanvas = (() => {
     c.beginPath();
     c.ellipse(cx + 22, headY + 8, 7, 4, 0, 0, Math.PI * 2);
     c.fill();
+
+    // 尾巴 — 根据动作变化（最后绘制，确保可见）
+    c.save();
+    c.translate(85, 85);
+    if (s.action === 'happy') {
+      c.rotate(-0.8);
+      const tipWiggle = Math.sin(s.tailPhase * 20) * 4;
+      c.beginPath();
+      c.moveTo(0, 0);
+      c.quadraticCurveTo(4, -15, tipWiggle, -35);
+      c.quadraticCurveTo(tipWiggle + 3, -38, tipWiggle - 2, -32);
+      c.quadraticCurveTo(0, -12, -2, 2);
+      c.fillStyle = '#f5c07a'; c.fill();
+      c.strokeStyle = '#d9a05c'; c.lineWidth = 1.5; c.stroke();
+    } else if (s.action === 'sleepy') {
+      c.rotate(0.3);
+      c.beginPath();
+      c.moveTo(0, 0);
+      c.quadraticCurveTo(-20, 10, -40, 5);
+      c.quadraticCurveTo(-48, 2, -45, 8);
+      c.quadraticCurveTo(-38, 12, -18, 12);
+      c.quadraticCurveTo(-8, 8, -2, 2);
+      c.fillStyle = '#f5c07a'; c.fill();
+      c.strokeStyle = '#d9a05c'; c.lineWidth = 1.5; c.stroke();
+    } else if (s.action === 'shake') {
+      c.rotate(-1.0);
+      c.beginPath();
+      c.moveTo(0, 0);
+      c.quadraticCurveTo(8, -10, 6, -25);
+      c.quadraticCurveTo(10, -32, 0, -30);
+      c.quadraticCurveTo(-10, -32, -6, -25);
+      c.quadraticCurveTo(-8, -10, 0, 0);
+      c.fillStyle = '#f5c07a'; c.fill();
+      c.strokeStyle = '#d9a05c'; c.lineWidth = 2; c.stroke();
+    } else {
+      const speed = s.typing ? 8 : 3;
+      const amp = s.typing ? 0.5 : 0.4;
+      const tailSwing = Math.sin(s.tailPhase * speed) * amp;
+      c.rotate(tailSwing - 0.3);
+      c.beginPath();
+      c.moveTo(0, 0);
+      c.quadraticCurveTo(12, 15, 8, 35);
+      c.quadraticCurveTo(6, 42, 0, 40);
+      c.quadraticCurveTo(2, 38, 4, 30);
+      c.quadraticCurveTo(8, 12, -2, 2);
+      c.fillStyle = '#f5c07a'; c.fill();
+      c.strokeStyle = '#d9a05c'; c.lineWidth = 1.5; c.stroke();
+    }
+    c.restore();
   }
 
   function drawCatEar(c, x, y, angle) {
@@ -259,7 +310,7 @@ const CharacterCanvas = (() => {
   // === 人物 ===
   function drawHuman(c, s) {
     const cx = 60, headY = 40, bodyY = 82;
-    const armDown = s.typing ? 38 + Math.sin(s.armPhase * 20) * 4 : 8;
+    const arms = getTypingArms(s, -0.25, 0.25, cx - 26, cx + 26, bodyY - 8);
 
     // 身体
     c.beginPath();
@@ -271,8 +322,8 @@ const CharacterCanvas = (() => {
     c.stroke();
 
     // 手臂
-    drawArm(c, cx - 26, bodyY - 8, -0.25, armDown, '#7eb8e0', '#5a9cc5');
-    drawArm(c, cx + 26, bodyY - 8, 0.25, armDown, '#7eb8e0', '#5a9cc5');
+    drawArm(c, cx - 26, bodyY - 8, arms.leftAngle, arms.leftLen, '#7eb8e0', '#5a9cc5');
+    drawArm(c, cx + 26, bodyY - 8, arms.rightAngle, arms.rightLen, '#7eb8e0', '#5a9cc5');
 
     // 头
     c.beginPath();
@@ -297,7 +348,7 @@ const CharacterCanvas = (() => {
   function drawBear(c, s) {
     const cx = 60, headY = 48, bodyY = 88;
     const earSwing = s.typing ? Math.sin(s.earPhase * 14) * 0.2 : Math.sin(s.earPhase * 2) * 0.08;
-    const armDown = s.typing ? 38 + Math.sin(s.armPhase * 20) * 4 : 8;
+    const arms = getTypingArms(s, -0.3, 0.3, cx - 28, cx + 28, bodyY - 8);
 
     // 身体
     c.beginPath();
@@ -314,8 +365,8 @@ const CharacterCanvas = (() => {
     c.fill();
 
     // 手臂
-    drawArm(c, cx - 28, bodyY - 8, -0.3, armDown, '#a0724a', '#7a5230');
-    drawArm(c, cx + 28, bodyY - 8, 0.3, armDown, '#a0724a', '#7a5230');
+    drawArm(c, cx - 28, bodyY - 8, arms.leftAngle, arms.leftLen, '#a0724a', '#7a5230');
+    drawArm(c, cx + 28, bodyY - 8, arms.rightAngle, arms.rightLen, '#a0724a', '#7a5230');
 
     // 耳朵（圆耳）
     [-1, 1].forEach(dir => {
@@ -371,21 +422,7 @@ const CharacterCanvas = (() => {
   function drawDog(c, s) {
     const cx = 60, headY = 48, bodyY = 88;
     const earSwing = s.typing ? Math.sin(s.earPhase * 14) * 0.25 : Math.sin(s.earPhase * 2.5) * 0.1;
-    const armDown = s.typing ? 38 + Math.sin(s.armPhase * 20) * 4 : 8;
-    const tailSwing = Math.sin(s.tailPhase * (s.typing ? 12 : 4)) * 0.5;
-
-    // 尾巴（短翘尾）
-    c.save();
-    c.translate(84, 82);
-    c.rotate(tailSwing - 0.5);
-    c.beginPath();
-    c.ellipse(0, -8, 5, 10, 0, 0, Math.PI * 2);
-    c.fillStyle = '#f0b860';
-    c.fill();
-    c.strokeStyle = '#c89030';
-    c.lineWidth = 1.5;
-    c.stroke();
-    c.restore();
+    const arms = getTypingArms(s, -0.3, 0.3, cx - 28, cx + 28, bodyY - 8);
 
     // 身体
     c.beginPath();
@@ -402,8 +439,8 @@ const CharacterCanvas = (() => {
     c.fill();
 
     // 手臂
-    drawArm(c, cx - 28, bodyY - 8, -0.3, armDown, '#f0b860', '#c89030');
-    drawArm(c, cx + 28, bodyY - 8, 0.3, armDown, '#f0b860', '#c89030');
+    drawArm(c, cx - 28, bodyY - 8, arms.leftAngle, arms.leftLen, '#f0b860', '#c89030');
+    drawArm(c, cx + 28, bodyY - 8, arms.rightAngle, arms.rightLen, '#f0b860', '#c89030');
 
     // 耳朵（竖三角，尖略圆）
     [-1, 1].forEach(dir => {
@@ -471,12 +508,48 @@ const CharacterCanvas = (() => {
 
     // 腮红
     drawBlush(c, cx, headY + 6, 'rgba(240,140,80,0.25)');
+
+    // 尾巴 — 根据动作变化（最后绘制，确保可见）
+    c.save();
+    c.translate(84, 82);
+    if (s.action === 'happy') {
+      const wag = Math.sin(s.tailPhase * 25) * 0.8;
+      c.rotate(wag - 0.5);
+      c.beginPath();
+      c.ellipse(0, -10, 6, 12, 0, 0, Math.PI * 2);
+      c.fillStyle = '#f0b860'; c.fill();
+      c.strokeStyle = '#c89030'; c.lineWidth = 1.5; c.stroke();
+    } else if (s.action === 'sleepy') {
+      c.rotate(0.6);
+      c.beginPath();
+      c.moveTo(0, 0);
+      c.quadraticCurveTo(4, 12, 2, 20);
+      c.quadraticCurveTo(0, 24, -3, 18);
+      c.quadraticCurveTo(-1, 10, -2, 2);
+      c.fillStyle = '#f0b860'; c.fill();
+      c.strokeStyle = '#c89030'; c.lineWidth = 1.5; c.stroke();
+    } else if (s.action === 'shake') {
+      c.rotate(0.8);
+      c.beginPath();
+      c.ellipse(0, 8, 4, 9, 0, 0, Math.PI * 2);
+      c.fillStyle = '#f0b860'; c.fill();
+      c.strokeStyle = '#c89030'; c.lineWidth = 1.5; c.stroke();
+    } else {
+      const speed = s.typing ? 12 : 4;
+      const tailSwing = Math.sin(s.tailPhase * speed) * 0.5;
+      c.rotate(tailSwing - 0.5);
+      c.beginPath();
+      c.ellipse(0, -8, 5, 10, 0, 0, Math.PI * 2);
+      c.fillStyle = '#f0b860'; c.fill();
+      c.strokeStyle = '#c89030'; c.lineWidth = 1.5; c.stroke();
+    }
+    c.restore();
   }
 
   // === 企鹅 ===
   function drawPenguin(c, s) {
     const cx = 60, headY = 44, bodyY = 86;
-    const armDown = s.typing ? 38 + Math.sin(s.armPhase * 20) * 4 : 8;
+    const arms = getTypingArms(s, -0.3, 0.3, cx - 30, cx + 30, bodyY - 8);
     const waddle = Math.sin(s.time * 3) * 0.05;
 
     // 身体（黑）
@@ -498,8 +571,8 @@ const CharacterCanvas = (() => {
     c.restore();
 
     // 翅膀/手臂
-    drawArm(c, cx - 30, bodyY - 8, -0.3, armDown, '#2a2a3a', '#1a1a2a');
-    drawArm(c, cx + 30, bodyY - 8, 0.3, armDown, '#2a2a3a', '#1a1a2a');
+    drawArm(c, cx - 30, bodyY - 8, arms.leftAngle, arms.leftLen, '#2a2a3a', '#1a1a2a');
+    drawArm(c, cx + 30, bodyY - 8, arms.rightAngle, arms.rightLen, '#2a2a3a', '#1a1a2a');
 
     // 头
     c.beginPath();
@@ -543,7 +616,7 @@ const CharacterCanvas = (() => {
   // === 小鸭 ===
   function drawDuck(c, s) {
     const cx = 60, headY = 46, bodyY = 88;
-    const armDown = s.typing ? 38 + Math.sin(s.armPhase * 20) * 4 : 8;
+    const arms = getTypingArms(s, -0.35, 0.35, cx - 28, cx + 28, bodyY - 8);
     const waddle = Math.sin(s.time * 3.5) * 0.06;
 
     // 身体
@@ -565,8 +638,8 @@ const CharacterCanvas = (() => {
     c.restore();
 
     // 小翅膀/手臂
-    drawArm(c, cx - 28, bodyY - 8, -0.35, armDown, '#ffe040', '#d0b020');
-    drawArm(c, cx + 28, bodyY - 8, 0.35, armDown, '#ffe040', '#d0b020');
+    drawArm(c, cx - 28, bodyY - 8, arms.leftAngle, arms.leftLen, '#ffe040', '#d0b020');
+    drawArm(c, cx + 28, bodyY - 8, arms.rightAngle, arms.rightLen, '#ffe040', '#d0b020');
 
     // 头
     c.beginPath();
@@ -694,5 +767,26 @@ const CharacterCanvas = (() => {
     c.restore();
   }
 
-  return { init, setCharType, setTyping, setAction };
+  // 打字时根据 keyX 计算左右手臂参数
+  function getTypingArms(s, leftBase, rightBase, leftX, rightX, originY) {
+    if (!s.typing) return { leftLen: 8, rightLen: 8, leftAngle: leftBase, rightAngle: rightBase };
+    const kx = s.keyX; // 0~1
+    const isLeft = kx < 0.5;
+    const targetX = kx * 120;
+    const targetY = 130;
+    const ox = isLeft ? leftX : rightX;
+    const dx = targetX - ox;
+    const dy = targetY - originY;
+    const activeLen = Math.sqrt(dx * dx + dy * dy) + Math.sin(s.armPhase * 20) * 3;
+    const activeAngle = Math.atan2(dx, dy);
+    const idleLen = 12;
+    return {
+      leftLen: isLeft ? activeLen : idleLen,
+      rightLen: isLeft ? idleLen : activeLen,
+      leftAngle: isLeft ? activeAngle : leftBase,
+      rightAngle: isLeft ? rightBase : activeAngle,
+    };
+  }
+
+  return { init, setCharType, setTyping, setAction, setKeyX };
 })();

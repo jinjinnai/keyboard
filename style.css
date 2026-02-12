@@ -75,7 +75,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  transform: perspective(200px) rotateX(-15deg);
+  transform: rotate(180deg);
 }
 
 .kb-row {
@@ -97,6 +97,7 @@ html, body {
   color: #666;
   transition: background 0.05s, transform 0.05s;
   line-height: 1;
+  transform: rotate(180deg);
 }
 
 .key.wide { min-width: 24px; }
@@ -104,7 +105,7 @@ html, body {
 
 .key.active {
   background: #ff9966;
-  transform: scale(1.2);
+  transform: rotate(180deg) scale(1.2);
   color: #fff;
   border-color: #e07030;
   box-shadow: 0 0 4px rgba(255, 140, 60, 0.6);
